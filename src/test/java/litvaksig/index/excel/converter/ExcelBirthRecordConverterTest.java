@@ -18,9 +18,9 @@ class ExcelBirthRecordConverterTest {
     private static final String MOTHER = "Ester";
     private static final String MOTHERS_FATHER = "Favish";
     private static final String MOTHER_MAIDEN = "Gershowitz";
-    private static final double DAY = 30;
-    private static final double MONTH = 5;
-    private static final double YEAR = 1879;
+    private static final int DAY = 30;
+    private static final int MONTH = 5;
+    private static final int YEAR = 1879;
     private static final String TOWN = "Kaunas";
     private static final String GUBERNIYA = "Suwalki";
 
@@ -85,7 +85,7 @@ class ExcelBirthRecordConverterTest {
     @Test
     void convertsWithoutDateOfBirthWhenMonthIsInvalid() {
         ExcelBirthRecord inputRecord = generateDefaultRecord();
-        inputRecord.month = 13.0;
+        inputRecord.month = 13;
 
         assertThat(converter.apply(inputRecord), equalTo(DEFAULT_PERSON_BUILDER.birthDate(null).build()));
     }

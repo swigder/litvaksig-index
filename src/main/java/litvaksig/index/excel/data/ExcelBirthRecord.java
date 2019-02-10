@@ -12,9 +12,9 @@ public class ExcelBirthRecord {
     @ExcelColumn(index = 11) public String mother;
     @ExcelColumn(index = 12) public String mothersFather;
     @ExcelColumn(index = 13) public String motherMaiden;
-    @ExcelColumn(index = 14) public Double day;
-    @ExcelColumn(index = 15) public Double month;
-    @ExcelColumn(index = 16) public Double year;
+    @ExcelColumn(index = 14) public Integer day;
+    @ExcelColumn(index = 15) public Integer month;
+    @ExcelColumn(index = 16) public Integer year;
     @ExcelColumn(index = 18) public String town;
     @ExcelColumn(index = 20) public String guberniya;
 

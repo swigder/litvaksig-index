@@ -44,9 +44,9 @@ public class ExcelBirthRecordConverter
         LocalDate birthDate = null;
         try {
             birthDate = LocalDate.of(
-                    excelBirthRecord.year.intValue(),
-                    excelBirthRecord.month.intValue(),
-                    excelBirthRecord.day.intValue());
+                    excelBirthRecord.year,
+                    excelBirthRecord.month,
+                    excelBirthRecord.day);
         } catch (NullPointerException | DateTimeException e) {
             e.printStackTrace();
         }

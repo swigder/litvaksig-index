@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 class ExcelReader {
     static <T> List<T> extractDataFromFile(String filename, int sheetToExtract, int headerRows, Class<T> typeToExtract)
@@ -39,11 +40,11 @@ class ExcelReader {
                 fields.forEach((field, fieldInfo) -> {
                     Cell cell = row.getCell(fieldInfo.index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
                     try {
-                        field.set(newItem, fieldInfo.method.invoke(cell));
+                        var rawValue = fieldInfo.method.invoke(cell);
+                        var safeValue = fieldInfo.converter == null ? rawValue : fieldInfo.converter.apply(rawValue);
+                        field.set(newItem, safeValue);
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                        System.out.println(String.format("Error in row %s column %s",
-                                row.getRowNum(), cell.getColumnIndex()));
+                        new InvalidExcelCellException(row.getRowNum(), cell.getColumnIndex(), e).printStackTrace();
                     }
                 });
                 items.add(newItem);
@@ -58,10 +59,12 @@ class ExcelReader {
     private static class FieldInfo {
         int index;
         Method method;
+        Function converter;
 
-        FieldInfo(int index, Method method) {
+        FieldInfo(int index, Method method, Function converter) {
             this.index = index;
             this.method = method;
+            this.converter = converter;
         }
     }
 
@@ -70,15 +73,20 @@ class ExcelReader {
         try {
             classMethodMap.put(String.class, Cell.class.getMethod("getStringCellValue"));
             classMethodMap.put(Double.class, Cell.class.getMethod("getNumericCellValue"));
+            classMethodMap.put(Integer.class, Cell.class.getMethod("getNumericCellValue"));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
+
+        Map<Class, Function> converterMap = new HashMap<>();
+        converterMap.put(Integer.class, (Function<Double, Integer>) Double::intValue);
+
         Map<Field, FieldInfo> fields = new HashMap<>();
         for (Field field : typeToExtract.getDeclaredFields()) {
             if (field.isAnnotationPresent(ExcelColumn.class)) {
                 int index = field.getAnnotation(ExcelColumn.class).index();
                 Class<?> type = field.getType();
-                fields.put(field, new ExcelReader.FieldInfo(index, classMethodMap.get(type)));
+                fields.put(field, new ExcelReader.FieldInfo(index, classMethodMap.get(type), converterMap.get(type)));
             }
         }
         return fields;

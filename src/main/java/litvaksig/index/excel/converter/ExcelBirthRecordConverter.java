@@ -28,7 +28,7 @@ public class ExcelBirthRecordConverter
                 .build();
 
         Person paternalGrandfather = null;
-        if (excelBirthRecord.mothersFather != null) {
+        if (excelBirthRecord.fathersFather != null) {
             paternalGrandfather = Person.builder()
                     .givenName(excelBirthRecord.fathersFather)
                     .surname(excelBirthRecord.surname)

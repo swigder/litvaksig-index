@@ -11,16 +11,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class ExcelReader {
-    public static <T> List<T> extractDataFromFile(String filename, int sheetToExtract, int headerRows, Class<T> typeToExtract)
+class ExcelReader {
+    static <T> List<T> extractDataFromFile(String filename, int sheetToExtract, int headerRows, Class<T> typeToExtract)
             throws IllegalArgumentException {
-        Map<Field, Integer> fields = getFields(typeToExtract);
+        Map<Field, FieldInfo> fields = getFields(typeToExtract);
         List<T> items = new ArrayList<>();
 
         try (InputStream inp = new FileInputStream(filename)) {
@@ -34,10 +36,16 @@ public class ExcelReader {
             while (rowIterator.hasNext()) {
                 T newItem = typeToExtract.newInstance();
                 Row row = rowIterator.next();
-                for (Map.Entry<Field, Integer> entry : fields.entrySet()) {
-                    Cell cell = row.getCell(entry.getValue(), Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                    entry.getKey().set(newItem, cell.getStringCellValue());
-                }
+                fields.forEach((field, fieldInfo) -> {
+                    Cell cell = row.getCell(fieldInfo.index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    try {
+                        field.set(newItem, fieldInfo.method.invoke(cell));
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                        System.out.println(String.format("Error in row %s column %s",
+                                row.getRowNum(), cell.getColumnIndex()));
+                    }
+                });
                 items.add(newItem);
             }
         } catch (IOException | InstantiationException | IllegalAccessException e) {
@@ -47,12 +55,30 @@ public class ExcelReader {
         return items;
     }
 
-    private static <T> Map<Field, Integer> getFields(Class<T> typeToExtract) {
-        Map<Field, Integer> fields = new HashMap<>();
+    private static class FieldInfo {
+        int index;
+        Method method;
+
+        FieldInfo(int index, Method method) {
+            this.index = index;
+            this.method = method;
+        }
+    }
+
+    private static <T> Map<Field, FieldInfo> getFields(Class<T> typeToExtract) {
+        Map<Class, Method> classMethodMap = new HashMap<>();
+        try {
+            classMethodMap.put(String.class, Cell.class.getMethod("getStringCellValue"));
+            classMethodMap.put(Double.class, Cell.class.getMethod("getNumericCellValue"));
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        Map<Field, FieldInfo> fields = new HashMap<>();
         for (Field field : typeToExtract.getDeclaredFields()) {
             if (field.isAnnotationPresent(ExcelColumn.class)) {
                 int index = field.getAnnotation(ExcelColumn.class).index();
-                fields.put(field, index);
+                Class<?> type = field.getType();
+                fields.put(field, new ExcelReader.FieldInfo(index, classMethodMap.get(type)));
             }
         }
         return fields;

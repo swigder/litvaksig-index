@@ -2,6 +2,7 @@ package litvaksig.index.excel.converter;
 
 import litvaksig.index.data.Person;
 import litvaksig.index.data.Place;
+import litvaksig.index.excel.data.converters.ExcelBirthRecordConverter;
 import litvaksig.index.excel.data.ExcelBirthRecord;
 import org.junit.jupiter.api.Test;
 

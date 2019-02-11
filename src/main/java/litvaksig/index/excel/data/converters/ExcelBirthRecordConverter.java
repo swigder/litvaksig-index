@@ -1,4 +1,4 @@
-package litvaksig.index.excel.converter;
+package litvaksig.index.excel.data.converters;
 
 import litvaksig.index.data.Person;
 import litvaksig.index.data.Place;
@@ -6,10 +6,8 @@ import litvaksig.index.excel.data.ExcelBirthRecord;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.function.Function;
 
-public class ExcelBirthRecordConverter
-        implements Function<ExcelBirthRecord, Person> {
+public class ExcelBirthRecordConverter implements ExcelRecordConverter<ExcelBirthRecord> {
     @Override
     public Person apply(ExcelBirthRecord excelBirthRecord) {
         Person maternalGrandfather = null;

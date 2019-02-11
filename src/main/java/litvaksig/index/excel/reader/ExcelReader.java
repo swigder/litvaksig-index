@@ -1,10 +1,11 @@
-package litvaksig.index.excel;
+package litvaksig.index.excel.reader;
 
-import litvaksig.index.excel.annotation.ExcelColumn;
+import litvaksig.index.excel.reader.annotation.ExcelColumn;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.FileInputStream;
@@ -20,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-class ExcelReader {
-    static <T> List<T> extractDataFromFile(String filename, int sheetToExtract, int headerRows, Class<T> typeToExtract)
+public class ExcelReader {
+    public static <T> List<T> extractDataFromFile(String filename, int sheetToExtract, int headerRows, Class<T> typeToExtract)
             throws IllegalArgumentException {
         Map<Field, FieldInfo> fields = getFields(typeToExtract);
         List<T> items = new ArrayList<>();
@@ -40,9 +41,16 @@ class ExcelReader {
                 fields.forEach((field, fieldInfo) -> {
                     Cell cell = row.getCell(fieldInfo.index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
                     try {
-                        var rawValue = fieldInfo.method.invoke(cell);
-                        var safeValue = fieldInfo.converter == null ? rawValue : fieldInfo.converter.apply(rawValue);
-                        field.set(newItem, safeValue);
+                        if (fieldInfo.check) {
+                            var safeValue = (cell.getCellType() == CellType.NUMERIC) ?
+                                    String.valueOf(cell.getNumericCellValue()) :
+                                    cell.getStringCellValue();
+                            field.set(newItem, safeValue);
+                        } else {
+                            var rawValue = fieldInfo.method.invoke(cell);
+                            var safeValue = fieldInfo.converter == null ? rawValue : fieldInfo.converter.apply(rawValue);
+                            field.set(newItem, safeValue);
+                        }
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         new InvalidExcelCellException(row.getRowNum(), cell.getColumnIndex(), e).printStackTrace();
                     }
@@ -60,9 +68,11 @@ class ExcelReader {
         int index;
         Method method;
         Function converter;
+        boolean check;
 
-        FieldInfo(int index, Method method, Function converter) {
+        FieldInfo(int index, boolean check, Method method, Function converter) {
             this.index = index;
+            this.check = check;
             this.method = method;
             this.converter = converter;
         }
@@ -84,9 +94,10 @@ class ExcelReader {
         Map<Field, FieldInfo> fields = new HashMap<>();
         for (Field field : typeToExtract.getDeclaredFields()) {
             if (field.isAnnotationPresent(ExcelColumn.class)) {
-                int index = field.getAnnotation(ExcelColumn.class).index();
+                ExcelColumn annotation = field.getAnnotation(ExcelColumn.class);
                 Class<?> type = field.getType();
-                fields.put(field, new ExcelReader.FieldInfo(index, classMethodMap.get(type), converterMap.get(type)));
+                fields.put(field, new ExcelReader.FieldInfo(annotation.index(), annotation.checkType(),
+                        classMethodMap.get(type), converterMap.get(type)));
             }
         }
         return fields;

@@ -1,10 +1,10 @@
 package litvaksig.index.excel.data;
 
-import litvaksig.index.excel.annotation.ExcelColumn;
-import litvaksig.index.excel.annotation.ExcelRow;
+import litvaksig.index.excel.reader.annotation.ExcelColumn;
+import litvaksig.index.excel.reader.annotation.ExcelRow;
 
 @ExcelRow
-public class ExcelBirthRecord {
+public class ExcelBirthRecord implements ExcelRecord {
     @ExcelColumn(index = 7) public String surname;
     @ExcelColumn(index = 8) public String givenName;
     @ExcelColumn(index = 9) public String father;

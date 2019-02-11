@@ -1,7 +1,7 @@
-package litvaksig.index.excel.data;
+package litvaksig.index.ingest.records;
 
-import litvaksig.index.excel.reader.annotation.ExcelColumn;
-import litvaksig.index.excel.reader.annotation.ExcelRow;
+import litvaksig.index.excel.annotation.ExcelColumn;
+import litvaksig.index.excel.annotation.ExcelRow;
 
 @ExcelRow
 public class ExcelBirthRecord implements ExcelRecord {

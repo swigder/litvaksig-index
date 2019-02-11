@@ -1,8 +1,8 @@
-package litvaksig.index.excel.data.converters;
+package litvaksig.index.ingest.converters;
 
 import litvaksig.index.data.Person;
 import litvaksig.index.data.Place;
-import litvaksig.index.excel.data.ExcelBirthRecord;
+import litvaksig.index.ingest.records.ExcelBirthRecord;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;

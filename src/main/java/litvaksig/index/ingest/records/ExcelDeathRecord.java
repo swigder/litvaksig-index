@@ -1,6 +1,6 @@
-package litvaksig.index.excel.data;
+package litvaksig.index.ingest.records;
 
-import litvaksig.index.excel.reader.annotation.ExcelColumn;
+import litvaksig.index.excel.annotation.ExcelColumn;
 
 public class ExcelDeathRecord implements ExcelRecord {
     @ExcelColumn(index = 7) public String surname;

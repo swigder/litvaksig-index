@@ -2,8 +2,8 @@ package litvaksig.index.excel.converter;
 
 import litvaksig.index.data.Person;
 import litvaksig.index.data.Place;
-import litvaksig.index.excel.data.converters.ExcelBirthRecordConverter;
-import litvaksig.index.excel.data.ExcelBirthRecord;
+import litvaksig.index.ingest.converters.ExcelBirthRecordConverter;
+import litvaksig.index.ingest.records.ExcelBirthRecord;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

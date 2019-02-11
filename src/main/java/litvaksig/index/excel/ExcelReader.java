@@ -1,6 +1,6 @@
-package litvaksig.index.excel.reader;
+package litvaksig.index.excel;
 
-import litvaksig.index.excel.reader.annotation.ExcelColumn;
+import litvaksig.index.excel.annotation.ExcelColumn;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;

@@ -1,8 +1,8 @@
 package litvaksig.index;
 
-import litvaksig.index.excel.data.ExcelBirthRecord;
-import litvaksig.index.excel.data.ExcelDeathRecord;
-import litvaksig.index.excel.data.extractors.RecordExtractor;
+import litvaksig.index.ingest.records.ExcelBirthRecord;
+import litvaksig.index.ingest.records.ExcelDeathRecord;
+import litvaksig.index.ingest.extractors.ExcelRecordExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,8 +17,8 @@ public class App {
 
     @Bean
     public CommandLineRunner commandLineRunner(
-            @Autowired RecordExtractor<ExcelBirthRecord> birthRecordExtractor,
-            @Autowired RecordExtractor<ExcelDeathRecord> deathRecordExtractor) {
+            @Autowired ExcelRecordExtractor<ExcelBirthRecord> birthRecordExtractor,
+            @Autowired ExcelRecordExtractor<ExcelDeathRecord> deathRecordExtractor) {
         return args -> {
             String directory = "/Users/xx/Documents/genealogy/litvaksig/";
 

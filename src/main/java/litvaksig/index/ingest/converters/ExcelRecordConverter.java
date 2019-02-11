@@ -1,7 +1,7 @@
-package litvaksig.index.excel.data.converters;
+package litvaksig.index.ingest.converters;
 
 import litvaksig.index.data.Person;
-import litvaksig.index.excel.data.ExcelRecord;
+import litvaksig.index.ingest.records.ExcelRecord;
 
 import java.util.function.Function;
 

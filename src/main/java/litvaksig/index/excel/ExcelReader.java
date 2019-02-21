@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ExcelReader {
     public static <T> List<T> extractDataFromFile(String filename, int sheetToExtract, int headerRows, Class<T> typeToExtract)
@@ -32,8 +33,20 @@ public class ExcelReader {
             HSSFSheet sheet = wb.getSheetAt(sheetToExtract);
 
             Iterator<Row> rowIterator = sheet.rowIterator();
+            Map<String, Field> fieldsMissingIndex = fields.entrySet().stream()
+                    .filter(entry -> entry.getValue().index == -1 && !"".equals(entry.getValue().headerName))
+                    .collect(Collectors.toMap(entry -> entry.getValue().headerName, Map.Entry::getKey));
             for (int i = 0; i < headerRows; i++) { // ignore header rows
-                rowIterator.next();
+                Row row = rowIterator.next();
+                if (fieldsMissingIndex.isEmpty()) { continue; }
+                row.cellIterator().forEachRemaining(cell -> {
+                    if (cell.getCellType() != CellType.STRING) { return; }
+                    String cellValue = cell.getStringCellValue();
+                    if (fieldsMissingIndex.containsKey(cellValue)) {
+                        fields.get(fieldsMissingIndex.get(cellValue)).index = cell.getColumnIndex();
+                        fieldsMissingIndex.remove(cellValue);
+                    }
+                });
             }
             while (rowIterator.hasNext()) {
                 T newItem = typeToExtract.newInstance();
@@ -69,12 +82,14 @@ public class ExcelReader {
         Method method;
         Function converter;
         boolean check;
+        String headerName;
 
-        FieldInfo(int index, boolean check, Method method, Function converter) {
+        FieldInfo(int index, boolean check, Method method, Function converter, String headerName) {
             this.index = index;
             this.check = check;
             this.method = method;
             this.converter = converter;
+            this.headerName = headerName;
         }
     }
 
@@ -97,7 +112,7 @@ public class ExcelReader {
                 ExcelColumn annotation = field.getAnnotation(ExcelColumn.class);
                 Class<?> type = field.getType();
                 fields.put(field, new ExcelReader.FieldInfo(annotation.index(), annotation.checkType(),
-                        classMethodMap.get(type), converterMap.get(type)));
+                        classMethodMap.get(type), converterMap.get(type), annotation.fromHeader()));
             }
         }
         return fields;

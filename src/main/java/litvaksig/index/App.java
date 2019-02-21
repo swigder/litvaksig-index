@@ -3,6 +3,7 @@ package litvaksig.index;
 import litvaksig.index.ingest.records.ExcelBirthRecord;
 import litvaksig.index.ingest.records.ExcelDeathRecord;
 import litvaksig.index.ingest.extractors.ExcelRecordExtractor;
+import litvaksig.index.ingest.records.ExcelGenericRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,7 +19,8 @@ public class App {
     @Bean
     public CommandLineRunner commandLineRunner(
             @Autowired ExcelRecordExtractor<ExcelBirthRecord> birthRecordExtractor,
-            @Autowired ExcelRecordExtractor<ExcelDeathRecord> deathRecordExtractor) {
+            @Autowired ExcelRecordExtractor<ExcelDeathRecord> deathRecordExtractor,
+            @Autowired ExcelRecordExtractor<ExcelGenericRecord> genericRecordExtractor) {
         return args -> {
             String directory = "/Users/xx/Documents/genealogy/litvaksig/";
 
@@ -27,6 +29,9 @@ public class App {
 
             String deathFile = "KAL-KAL-1922_1939-D.xls";
             deathRecordExtractor.extractRecords(directory + deathFile);
+
+            String returnFromAbroadFile = "SuwalkiGubernia-Returnfromabroad.xls";
+            genericRecordExtractor.extractRecords(directory + returnFromAbroadFile);
         };
     }
 

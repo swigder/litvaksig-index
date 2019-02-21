@@ -1,7 +1,11 @@
 package litvaksig.index.ingest.records;
 
 import litvaksig.index.excel.annotation.ExcelColumn;
+import litvaksig.index.excel.annotation.ExcelRow;
+import lombok.ToString;
 
+@ExcelRow
+@ToString
 public class ExcelDeathRecord implements ExcelRecord {
     @ExcelColumn(index = 7) public String surname;
     @ExcelColumn(index = 8) public String givenName;
@@ -16,23 +20,4 @@ public class ExcelDeathRecord implements ExcelRecord {
     @ExcelColumn(index = 18) public Integer year;
     @ExcelColumn(index = 20) public String town;
     @ExcelColumn(index = 22) public String guberniya;
-
-    @Override
-    public String toString() {
-        return "ExcelDeathRecord{" +
-                "surname='" + surname + '\'' +
-                ", givenName='" + givenName + '\'' +
-                ", father='" + father + '\'' +
-                ", mother='" + mother + '\'' +
-                ", motherMaiden='" + motherMaiden + '\'' +
-                ", spouseGiven='" + spouseGiven + '\'' +
-                ", spouseMaiden='" + spouseMaiden + '\'' +
-                ", age='" + age + '\'' +
-                ", day=" + day +
-                ", month=" + month +
-                ", year=" + year +
-                ", town='" + town + '\'' +
-                ", guberniya='" + guberniya + '\'' +
-                '}';
-    }
 }
